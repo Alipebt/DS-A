@@ -102,7 +102,7 @@ void HuffmanCode(int n, HuffmanTree ht)
             c = p;
             p = ht[p].parent;
         }
-        printf("%c的编码:\n", ht[i].name);
+        printf("%c: ", ht[i].name);
 
         for (int j = 0; j < n; j++)
         {
@@ -272,42 +272,31 @@ int main()
     int w[N];
     char str[N];
     int z;
-    scanf("%d", &z);
-    if (z == 1)
-    {
-        scanf("%s", str);
-        int r = strlen(str);
-        tongji(str, ht);
 
-        char e[MAX];
-        Huffman(ht, w, y);
-        HuffmanCode(y, ht);
-        printf("这段话的编码是：");
-        for (i = 0; i < r; i++)
+    scanf("%s", str);
+    int r = strlen(str);
+    tongji(str, ht);
+
+    char e[MAX];
+    Huffman(ht, w, y);
+    HuffmanCode(y, ht);
+    printf("编码：");
+    for (i = 0; i < r; i++)
+    {
+        for (j = 1; j <= y; j++)
         {
-            for (j = 1; j <= y; j++)
+            if (str[i] == ht[j].name)
             {
-                if (str[i] == ht[j].name)
-                {
-                    printf("%s", ht[j].mi);
-                    strcat(e, ht[j].mi);
-                    break;
-                }
+                printf("%s", ht[j].mi);
+                strcat(e, ht[j].mi);
+                break;
             }
         }
-        printf("\n");
+    }
+    printf("\n");
 
-        write(ht, "huffman.txt", y);
-        write1(ht, "huffman1.txt", y);
-        write2(ht, "huffman2.txt", r, y, str);
-    }
-    if (z == 2)
-    {
-        char t[MAX];
-        read(ht, "huffman.txt");
-        read1(ht, "huffman1.txt");
-        read2("huffman2.txt", t);
-        CodeHuffman(ht, t, f);
-    }
+    write(ht, "huffman.txt", y);
+    write1(ht, "huffman1.txt", y);
+
     return 0;
 }
