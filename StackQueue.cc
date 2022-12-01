@@ -71,7 +71,7 @@ typedef struct StackNode
     struct StackNode *next;
 } * Stack;
 
-int InitStack(Stack s)
+int InitStack(Stack &s)
 {
     s = NULL;
     return 1;
@@ -81,7 +81,7 @@ int EmptyStack(Stack s)
 {
     return s == NULL ? 1 : 0;
 }
-int Push(Stack s, int data)
+int Push(Stack &s, int data)
 {
     Stack news = (Stack)malloc(sizeof(Stack));
     news->data = data;
@@ -90,7 +90,7 @@ int Push(Stack s, int data)
     return 1;
 }
 
-int Pop(Stack s, int *x)
+int Pop(Stack &s, int *x)
 {
     if (!s->next)
     {
@@ -112,7 +112,7 @@ int getTop(Stack s, int *x)
     return 1;
 }
 
-void printfStack(Stack s)
+void printfStack(Stack &s)
 {
     Stack p = s;
     while (p)
