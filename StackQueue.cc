@@ -138,6 +138,41 @@ int InitQueue(Queue &q)
     return 1;
 }
 
+int EmptyQueue(Queue q)
+{
+    return q.front == q.rear ? 1 : 0;
+}
+
+int EnQueue(Queue &q, int *x)
+{
+    if (q.rear + 1 % MAXSIZE == q.front)
+    {
+        return -1;
+    }
+    q.queue[q.rear++ % MAXSIZE] = *x;
+    return 1;
+}
+
+int DeQueue(Queue &q, int *x)
+{
+    if (!EmptyQueue(q))
+    {
+        return -1;
+    }
+    *x = q.queue[q.front++ % MAXSIZE];
+
+    return 1;
+}
+
+int GetHead(Queue q, int *x)
+{
+    if (!EmptyQueue(q))
+    {
+        return -1;
+    }
+    *x = q.queue[q.front];
+}
+
 int main()
 {
     /*
