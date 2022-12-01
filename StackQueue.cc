@@ -55,9 +55,9 @@ int getTop(Stack s, int *x)
 
 int printfStack(Stack s)
 {
-    while (s.top)
+    while (s.top >= 0)
     {
-        printf("%d\n", s.stack[s.top]);
+        printf("%d\n", s.stack[s.top--]);
     }
     return 1;
 }
