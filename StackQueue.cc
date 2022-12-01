@@ -3,6 +3,7 @@
 
 using namespace std;
 //顺序栈
+/*
 #define MAXSIZE 10
 typedef struct
 {
@@ -61,69 +62,67 @@ int printfStack(Stack s)
     }
     return 1;
 }
-
+*/
 // 链栈
-/*
+
 typedef struct StackNode
 {
     int data;
     struct StackNode *next;
-} Stack;
+} * Stack;
 
-int InitStack(Stack &s)
+int InitStack(Stack s)
 {
-    s = (Stack *)malloc(sizeof(Stack));
-    s->data = 0;
-    s->next = NULL;
+    s = NULL;
     return 1;
 }
 
-int EmptyStack(Stack *s)
+int EmptyStack(Stack s)
 {
-    return s->next == NULL ? 1 : 0;
+    return s == NULL ? 1 : 0;
 }
-int Push(Stack *s, int data)
+int Push(Stack s, int data)
 {
-    Stack *new = (Stack *)malloc(sizeof(Stack));
-    new->data = data;
-    new->next = s->next;
-    s->next = new;
+    Stack news = (Stack)malloc(sizeof(Stack));
+    news->data = data;
+    news->next = s;
+    s = news;
     return 1;
 }
 
-int Pop(Stack *s, int *x)
+int Pop(Stack s, int *x)
 {
     if (!s->next)
     {
         return 0;
     }
-    Stack *p = s->next;
+    Stack p = s;
     *x = p->data;
-    s->next = p->next;
+    s = p->next;
     free(p);
     return 1;
 }
-int getTop(Stack *s, int *x)
+int getTop(Stack s, int *x)
 {
     if (!s->next)
     {
         return 0;
     }
-    *x = s->next->data;
+    *x = s->data;
     return 1;
 }
 
-void printfStack(Stack *s)
+void printfStack(Stack s)
 {
-    Stack *p = s;
-    while (p->next)
+    Stack p = s;
+    while (p)
     {
-        p = p->next;
         printf("%d\n", p->data);
+        p = p->next;
     }
     return;
 }
-*/
+
 // queue
 
 int main()
