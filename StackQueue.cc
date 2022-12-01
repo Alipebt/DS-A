@@ -15,50 +15,49 @@ int InitStack(Stack &s)
     s.top = -1;
     return 1;
 }
-int EmptyStack(Stack *s)
+int EmptyStack(Stack s)
 {
-    return s->top == -1 ? 1 : 0;
+    return s.top == -1 ? 1 : 0;
 }
 
-int Push(Stack *s, int x)
+int Push(Stack &s, int x)
 {
-    if (s->top == MAXSIZE - 1)
+    if (s.top == MAXSIZE - 1)
     {
         return -1;
     }
 
-    s->stack[++s->top] = x;
+    s.stack[++s.top] = x;
     return 1;
 }
 
-int Pop(Stack *s, int *x)
+int Pop(Stack &s, int *x)
 {
     if (!EmptyStack(s))
     {
         return -1;
     }
 
-    *x = s->stack[s->top--];
+    *x = s.stack[s.top--];
     return 1;
 }
 
-int getTop(Stack *s, int *x)
+int getTop(Stack s, int *x)
 {
     if (!EmptyStack(s))
     {
         return -1;
     }
 
-    *x = s->stack[s->top];
+    *x = s.stack[s.top];
     return 1;
 }
 
-int printfStack(Stack *s)
+int printfStack(Stack s)
 {
-    int topp = s->top;
-    while (topp)
+    while (s.top)
     {
-        printf("%d\n", s->stack[topp--]);
+        printf("%d\n", s.stack[s.top]);
     }
     return 1;
 }
@@ -129,9 +128,9 @@ void printfStack(Stack *s)
 
 int main()
 {
-    Stack *s;
+    Stack s;
     int x, n;
-    InitStack(*s);
+    InitStack(s);
 
     while (1)
     {
