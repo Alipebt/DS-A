@@ -1,17 +1,81 @@
-#include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 
+using namespace std;
+//顺序栈
+#define MAXSIZE 10
+typedef struct
+{
+    int stack[MAXSIZE];
+    int top;
+} Stack;
+
+int InitStack(Stack &s)
+{
+    s.top = -1;
+    return 1;
+}
+int EmptyStack(Stack *s)
+{
+    return s->top == -1 ? 1 : 0;
+}
+
+int Push(Stack *s, int x)
+{
+    if (s->top == MAXSIZE - 1)
+    {
+        return -1;
+    }
+
+    s->stack[++s->top] = x;
+    return 1;
+}
+
+int Pop(Stack *s, int *x)
+{
+    if (!EmptyStack(s))
+    {
+        return -1;
+    }
+
+    *x = s->stack[s->top--];
+    return 1;
+}
+
+int getTop(Stack *s, int *x)
+{
+    if (!EmptyStack(s))
+    {
+        return -1;
+    }
+
+    *x = s->stack[s->top];
+    return 1;
+}
+
+int printfStack(Stack *s)
+{
+    int topp = s->top;
+    while (topp)
+    {
+        printf("%d\n", s->stack[topp--]);
+    }
+    return 1;
+}
+
+// 链栈
+/*
 typedef struct StackNode
 {
     int data;
     struct StackNode *next;
 } Stack;
 
-int InitStack(Stack **s)
+int InitStack(Stack &s)
 {
-    *s = (Stack *)malloc(sizeof(Stack));
-    (*s)->data = 0;
-    (*s)->next = NULL;
+    s = (Stack *)malloc(sizeof(Stack));
+    s->data = 0;
+    s->next = NULL;
     return 1;
 }
 
@@ -60,12 +124,14 @@ void printfStack(Stack *s)
     }
     return;
 }
+*/
+// queue
 
 int main()
 {
     Stack *s;
     int x, n;
-    InitStack(&s);
+    InitStack(*s);
 
     while (1)
     {
