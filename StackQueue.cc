@@ -2,9 +2,11 @@
 #include <stdlib.h>
 
 using namespace std;
+
+#define MAXSIZE 10
+
 //顺序栈
 /*
-#define MAXSIZE 10
 typedef struct
 {
     int stack[MAXSIZE];
@@ -123,10 +125,22 @@ void printfStack(Stack &s)
     return;
 }
 
-// queue
+// 顺序队列
+typedef struct
+{
+    int queue[MAXSIZE];
+    int front, rear;
+} Queue;
+
+int InitQueue(Queue &q)
+{
+    q.front = q.rear = 0;
+    return 1;
+}
 
 int main()
 {
+    /*
     Stack s;
     int x, n;
     InitStack(s);
@@ -169,4 +183,5 @@ int main()
             printfStack(s);
         }
     }
+    */
 }
