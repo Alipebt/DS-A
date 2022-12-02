@@ -219,4 +219,42 @@ int main()
         }
     }
     */
+    Queue q;
+
+    int x, n;
+    InitQueue(q);
+
+    while (1)
+    {
+        printf("1.入队\t2.出队\t3.判空\t4.取队头\t");
+        scanf("%d", &n);
+        if (n == 1)
+        {
+            printf("入队数据:");
+            scanf("%d", &x);
+            EnQueue(q, &x);
+            printf("入队: %d\n", x);
+        }
+        else if (n == 2)
+        {
+            if (!EmptyQueue(q))
+            {
+                DeQueue(q, &x);
+                printf("出队：%d\n", x);
+            }
+            else
+            {
+                printf("无数据\n");
+            }
+        }
+        else if (n == 3)
+        {
+            printf("判空: %s\n", EmptyQueue(q) ? "空" : "非空");
+        }
+        else if (n == 4)
+        {
+            GetHead(q, &x);
+            printf("取栈顶: %d\n", x);
+        }
+    }
 }
