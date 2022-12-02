@@ -171,6 +171,8 @@ int GetHead(Queue q, int *x)
         return -1;
     }
     *x = q.queue[q.front];
+
+    return 1;
 }
 
 int main()
