@@ -94,7 +94,7 @@ int Push(Stack &s, int data)
 
 int Pop(Stack &s, int *x)
 {
-    if (!s->next)
+    if (!s)
     {
         return 0;
     }
@@ -177,7 +177,7 @@ int GetHead(Queue q, int *x)
 
 int main()
 {
-    /*
+
     Stack s;
     int x, n;
     InitStack(s);
@@ -220,7 +220,7 @@ int main()
             printfStack(s);
         }
     }
-    */
+    /*
     Queue q;
 
     int x, n;
@@ -258,5 +258,5 @@ int main()
             GetHead(q, &x);
             printf("取栈顶: %d\n", x);
         }
-    }
+    }*/
 }
