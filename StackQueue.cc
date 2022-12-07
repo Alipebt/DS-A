@@ -5,7 +5,7 @@ using namespace std;
 
 #define MAXSIZE 10
 
-//顺序栈
+// 顺序栈
 /*
 typedef struct
 {
@@ -126,6 +126,7 @@ void printfStack(Stack &s)
 }
 */
 // 顺序队列
+/*
 typedef struct
 {
     int queue[MAXSIZE];
@@ -174,7 +175,68 @@ int GetHead(Queue q, int *x)
 
     return 1;
 }
+*/
+// 链队
+typedef struct Node
+{
+    int data;
+    struct Node *next;
+} QueueNode;
+typedef struct
+{
+    struct Node *front, *rear;
+} Queue;
 
+int InitQueue(Queue &q)
+{
+    q.front = q.rear = NULL;
+}
+int EmptyQueue(Queue q)
+{
+    return q.front == NULL ? 1 : 0;
+}
+int EnQueue(Queue &q, int *x)
+{
+    QueueNode *qn = (QueueNode *)malloc(sizeof(QueueNode));
+    qn->data = *x;
+    qn->next = NULL;
+    if (!q.front)
+    {
+        q.front = qn;
+        q.rear = qn;
+    }
+    else
+    {
+        q.rear->next = qn;
+        q.rear = qn;
+    }
+}
+int DeQueue(Queue &q, int *x)
+{
+    if (!q.front)
+    {
+        return -1;
+    }
+    QueueNode *d = q.front;
+
+    *x = q.front->data;
+    q.front = q.front->next;
+
+    if (q.rear == d)
+    {
+        q.rear = NULL;
+    }
+    free(d);
+}
+int GetHead(Queue &q, int *x)
+{
+    if (!EmptyQueue(q))
+    {
+        return -1;
+    }
+    *x = q.front->data;
+    return 1;
+}
 int main()
 {
     /*
@@ -256,7 +318,7 @@ int main()
         else if (n == 4)
         {
             GetHead(q, &x);
-            printf("取栈顶: %d\n", x);
+            printf("取队头: %d\n", x);
         }
     }
 }
