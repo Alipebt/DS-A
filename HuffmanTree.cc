@@ -26,36 +26,22 @@ void swap(int *x, int *y)
     y = temp;
 }
 
-void count_char()
-{
-    char c;
-    int fp = open("Haffman.souce", 'r');
-    while (fp)
-    {
-        if (read(fp, &c, 1) <= 0)
-        {
-            break;
-        }
-        char_wight[c]++;
-    }
-}
-
 void Select(HuffmanTree HT, int n, int &s1, int &s2)
 {
     int i = 1;
-    while (HT[i].parent != 0 && i <= n) // 找到一个还没连接的，即parent=0；
+    while (HT[i].parent != 0 && i <= n)
         i++;
     if (i == n + 1)
         return;
     s1 = i;
     i++;
-    while (HT[i].parent != 0 && i <= n) // 同上
+    while (HT[i].parent != 0 && i <= n)
         i++;
     if (i == n + 1)
         return;
     s2 = i;
     i++;
-    if (HT[s1].weight > HT[s2].weight) // 让s1比s2小
+    if (HT[s1].weight > HT[s2].weight)
         swap(&s1, &s2);
     for (; i <= n; i++)
     {
@@ -215,6 +201,7 @@ int main()
         char s1[] = {"结点"}, s2[] = {"字符"}, s3[] = {"权值"}, s4[] = {"双亲"}, s5[] = {"左孩子"}, s6[] = {"右孩子"};
         int flag = 1, choose, num, cc = 0;
 
+        printf("1.建立哈夫曼树2.编码3.输入文件4.译码5.输出文件6.退出\n");
         char temp;
         cout << "选择操作:";
         cin >> choose;
@@ -227,6 +214,7 @@ int main()
             for (int i = 1; i <= num; i++)
                 cin >> a[i];
             cout << "依次输入" << num << "个字符的权值:";
+
             CreatHuffmanTree(HT, num);
 
             FILE *fp;
@@ -265,7 +253,7 @@ int main()
                 cout << "error" << endl;
             while (1)
             {
-                temp = fgetc(fp); // 读一个字节。
+                int temp = fgetc(fp); // 读一个字节。
                 if (temp == EOF)
                     break;      // 到文件尾，退出循环。
                 b[cc++] = temp; // 赋值到字符数组中。
