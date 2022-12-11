@@ -1,283 +1,446 @@
+
+#include <fstream>
+#include <stdio.h>
 #include <iostream>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
+
+typedef struct char_count *count_node;
+struct char_count
+{
+    char ch;
+    long count;
+    short bit;
+};
+count_node weight[126];
+
+typedef struct HNodeType *HNode;
+struct HNodeType
+{
+    count_node node;
+    HNode parent;
+    HNode lchild;
+    HNode rchild;
+};
+HNode p;
+
+typedef struct charCode *code;
+struct charCode
+{
+    char ch;
+    short codeNum[1000];
+    int codeLen;
+};
+code char_code[125];
+
+int n, num;
+int sumStrLen = 0;
+char str[100000];
+short codeStr[100000000];
 
 using namespace std;
 
-#define MAX_MA 1000
-#define MAX_ZF 100
-using namespace std;
-
-char char_wight[256] = {0};
-
-typedef struct
+/**
+ * 译码
+ */
+void tranCode(int len)
 {
-    int weight;
-    int lchild, rchild, parent;
-} HTNode, *HuffmanTree;
-
-void swap(int *x, int *y)
-{
-    int *temp;
-    temp = x;
-    x = y;
-    y = temp;
-}
-
-void Select(HuffmanTree HT, int n, int &s1, int &s2)
-{
-    int i = 1;
-    while (HT[i].parent != 0 && i <= n)
-        i++;
-    if (i == n + 1)
-        return;
-    s1 = i;
-    i++;
-    while (HT[i].parent != 0 && i <= n)
-        i++;
-    if (i == n + 1)
-        return;
-    s2 = i;
-    i++;
-    if (HT[s1].weight > HT[s2].weight)
-        swap(&s1, &s2);
-    for (; i <= n; i++)
-    {
-        if (HT[i].parent == 0)
-        {
-            if (HT[i].weight < HT[s1].weight)
-                s2 = s1, s1 = i;
-            else if (HT[i].weight < HT[s2].weight)
-                s2 = i;
-        }
-    }
-    return;
-}
-
-void CreatHuffmanTree(HuffmanTree &HT, int n)
-{
-    if (n <= 1)
-        return;
-    int m = 2 * n - 1;
-    HT = (HuffmanTree)malloc(sizeof(HTNode) * (m + 1));
-    for (int i = 1; i <= m; i++)
-    {
-        HT[i].lchild = 0;
-        HT[i].parent = 0;
-        HT[i].rchild = 0;
-        HT[i].weight = 0;
-    }
-    for (int i = 1; i <= n; i++)
-        cin >> HT[i].weight;
-    int s1, s2;
-    for (int i = n + 1; i <= m; i++)
-    {
-        Select(HT, i - 1, s1, s2);
-        HT[s1].parent = i;
-        HT[s2].parent = i;
-        HT[i].lchild = s1;
-        HT[i].rchild = s2;
-        HT[i].weight = HT[s1].weight + HT[s2].weight;
-    }
-    return;
-}
-
-void CreatHuffmanCode(HuffmanTree &HT, char **&HC, int n)
-{
-    char *col;
-    HC = (char **)malloc(sizeof(char *) * (n + 1));
-    col = (char *)malloc(sizeof(char) * n); // 存储每个编码的临时空间
-    col[n - 1] = '\0';
-    // 为什么是n-1,n个节点创建的哈夫曼树高为n-1
-    // 路径条数为n-2，最长的只有n-2个数字。
-    for (int i = 1; i <= n; i++)
-    {
-        int str = n - 1;
-        int p = i, f = i;
-        while (HT[f].parent != 0) // 从叶向上寻找
-        {
-            f = HT[f].parent;
-            if (HT[f].lchild == p)
-                col[--str] = '0';
-            else if (HT[f].rchild == p)
-                col[--str] = '1';
-            p = f;
-        }
-        HC[i] = (char *)malloc(sizeof(char) * (n - str)); // 为第i个字符编码分配空间
-        strcpy(HC[i], &col[str]);                         // 复制到编码中
-    }
-    free(col);
-    return;
-}
-
-void TransCode(HuffmanTree HT, char b[], char a[], char c[], int n)
-{
-    // b数组是要翻译的二进制编码
-    // a数组是叶子对应的字符
-    // c数组存储翻译得到的内容
-    FILE *fw;
-    int q = 2 * n - 1; // 初始化为根结点的下标
-    int k = 0;
-    int len = strlen(b);
-    if ((fw = fopen("textfile.txt", "w")) == NULL)
-        cout << "Open file error!" << endl;
+    HNode q;
+    q = p;
+    ofstream fout("Haffman.decode");
+    cout << "\n译码结果:" << endl;
     for (int i = 0; i < len; i++)
     {
-        if (b[i] == '0')
-            q = HT[q].lchild;
-        else if (b[i] == '1')
-            q = HT[q].rchild;
-        if (HT[q].lchild == 0 && HT[q].rchild == 0) // 叶子节点，此时可译
+        if (codeStr[i] == 0)
         {
-            c[k++] = a[q];
-            fputc(a[q], fw);
-            q = 2 * n - 1;
-        }
-        c[k] = '\0';
-    }
-    return;
-}
-void Coding(HuffmanTree &HT, char **&HC, int n, char a[])
-{
-    FILE *fp, *fw;
-    char c;
-    int k;
-    if ((fp = fopen("tobetran.txt", "r")) == NULL)
-        cout << "Open file error!" << endl;
-    if ((fw = fopen("codefile.txt", "w")) == NULL)
-        cout << "Open file error!" << endl;
-    fscanf(fp, "%c", &c); // 从文件中读取一个字符
-    while (!feof(fp))
-    {
-        for (int i = 1; i <= n; i++)
-            if (a[i] == c) // 找到对应的编码
+            q = q->lchild;
+            if (q->node->ch)
             {
-                k = i;
+                cout << q->node->ch;
+                fout << q->node->ch;
+                q = p;
+            }
+        }
+        if (codeStr[i] == 1)
+        {
+            q = q->rchild;
+            if (q->node->ch)
+            {
+                cout << q->node->ch;
+                fout << q->node->ch;
+                q = p;
+            }
+        }
+    }
+    cout << "\n结果写入Huffman.decode" << endl;
+}
+
+/**
+ * 计算压缩效率
+ */
+void efficiency(int len)
+{
+    int sumCodeLen = 0;
+    for (int i = 0; i <= len; i++)
+    {
+        sumCodeLen += char_code[i]->codeLen;
+    }
+    cout << "\n压缩效率:" << sumCodeLen << "/" << sumStrLen << "=" << sumCodeLen * 1.0 / sumStrLen << endl;
+}
+
+/**
+ * 把字符串编码，返回编码后数组的长度
+ */
+int finishCode()
+{
+    int m = 0;
+    ofstream fout("Haffman.code");
+    cout << "\n编码结果:" << endl;
+    for (int i = 0; i < sumStrLen; i++)
+    {
+        for (int j = 0; j < sumStrLen; j++)
+        {
+            if (char_code[j]->ch == str[i])
+            {
+                for (int k = 0; k < char_code[j]->codeLen; k++)
+                {
+                    codeStr[m] = char_code[j]->codeNum[k];
+                    cout << codeStr[m];
+                    fout << codeStr[m];
+                    m++;
+                }
                 break;
             }
-        for (int i = 0; HC[k][i] != '\0'; i++) // 输出该字符编码
-            fputc(HC[k][i], fw);
-        fscanf(fp, "%c", &c); // 继续下一个
+        }
     }
-    fclose(fp);
-    fclose(fw);
-    return;
+    cout << "\n结果写入Huffman.code" << endl;
+    return m;
 }
-void printf_code()
+
+/**
+ * 获取各个字符的编码
+ */
+void getCode()
 {
-    FILE *fp, *fw;
-    char temp;
-    if ((fp = fopen("codefile.txt", "r")) == NULL)
-        cout << "error" << endl;
-    if ((fw = fopen("codeprin.txt", "w")) == NULL)
-        cout << "error" << endl;
-    cout << "codefile.txt：" << endl;
-    fscanf(fp, "%c", &temp);
-    for (int i = 1; !feof(fp); i++)
+
+    for (int i = 0; i < 125; i++)
     {
-        printf("%c", temp);
-        if (i % 50 == 0) // 50个一换行
-            cout << endl;
-        fputc(temp, fw); // 再写到codeprint文件中
-        fscanf(fp, "%c", &temp);
+        char_code[i] = new charCode();
+        for (int j = 0; j < 1000; j++)
+        {
+            char_code[i]->codeNum[j] = -1;
+        }
     }
-    cout << endl;
-    cout << "编码已存入文件codeprin.txt" << endl;
-    fclose(fp);
-    fclose(fw);
+
+    int cache[1000] = {0}, i = 0, j = 0;
+    HNode q1, q2;
+    q1 = p;
+
+    while (q1->lchild)
+    {
+        char_code[i]->ch = q1->lchild->node->ch;
+        j = 0;
+        cache[j] = q1->lchild->node->bit;
+        j++;
+        q2 = q1;
+        while (q2->node->bit)
+        {
+            cache[j] = q2->node->bit;
+            j++;
+            q2 = q2->parent;
+        }
+        int m = 0;
+        for (int k = j - 1; k >= 0; k--)
+        {
+            char_code[i]->codeNum[m] = cache[k];
+            m++;
+        }
+        char_code[i]->codeLen = m;
+        i++;
+        if (q1->rchild)
+        {
+            q1 = q1->rchild;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    q1 = p;
+    if (q1->rchild)
+    {
+        j = 0;
+        int cache2[1000] = {0};
+        while (q1->rchild)
+        {
+            cache[j] = q1->rchild->node->bit;
+            j++;
+            if (q1->rchild->node->ch)
+            {
+                char_code[i]->ch = q1->rchild->node->ch;
+            }
+            q1 = q1->rchild;
+        }
+        int m = 0;
+        for (int k = j - 1; k >= 0; k--)
+        {
+            char_code[i]->codeNum[m] = cache[k];
+            m++;
+        }
+        char_code[i]->codeLen = m;
+    }
+
+    cout << "\n编码:" << endl;
+    for (int k = 0; k <= i; k++)
+    {
+        if (char_code[k]->ch)
+        {
+            cout << char_code[k]->ch << " : ";
+            int k2 = 0;
+            while (char_code[k]->codeNum[k2] != -1)
+            {
+                cout << char_code[k]->codeNum[k2];
+                k2++;
+            }
+        }
+        cout << endl;
+    }
+
+    // 把字符串进行编码
+    int codeLen = finishCode();
+
+    // 统计压缩效率
+    efficiency(i);
+
+    // 译码
+    tranCode(codeLen);
+}
+
+/**
+ * 分配比特
+ */
+void coder(HNode p)
+{
+    if (p)
+    {
+        if (p->lchild)
+        {
+            p->lchild->node->bit = 0;
+        }
+        if (p->rchild)
+        {
+            p->rchild->node->bit = 1;
+        }
+        if (p->lchild)
+        {
+            coder(p->lchild);
+        }
+        if (p->rchild)
+        {
+            coder(p->rchild);
+        }
+    }
+}
+
+/**
+ * 构建哈夫曼树
+ */
+void HaffmanTree()
+{
+    HNode hNl, hNr;
+    hNl = new HNodeType();
+    hNr = new HNodeType();
+    hNl->lchild = hNl->rchild = NULL;
+    hNl->node = weight[1];
+
+    hNr->lchild = hNr->rchild = NULL;
+
+    if (n == 1)
+    {
+        hNr->node = NULL;
+
+        p = hNl->parent = new HNodeType();
+
+        p->lchild = hNl;
+        p->rchild = NULL;
+        p->node = new char_count();
+        p->node->ch = 0;
+        p->node->count = p->lchild->node->count;
+        p->parent = NULL;
+    }
+    else
+    {
+        hNr->node = weight[2];
+
+        for (int i = 3; i <= n; i++)
+        {
+            p = hNl->parent = hNr->parent = new HNodeType();
+
+            p->lchild = hNl;
+            p->rchild = hNr;
+            p->node = new char_count();
+            p->node->ch = 0;
+            p->node->count = p->lchild->node->count + p->rchild->node->count;
+
+            hNl = new HNodeType();
+            hNl->node = weight[i];
+            hNl->lchild = hNl->rchild = NULL;
+
+            hNr = p;
+        }
+
+        p = hNl->parent = hNr->parent = new HNodeType();
+
+        p->lchild = hNl;
+        p->rchild = hNr;
+        p->node = new char_count();
+        p->node->ch = 0;
+        p->node->count = p->lchild->node->count + p->rchild->node->count;
+        p->parent = NULL;
+    }
+    // 打印
+
+    // 分配比特
+    coder(p);
+}
+
+/**
+ * 交换堆中两个元素
+ *
+ */
+void swap(int x, int y)
+{
+    count_node t;
+    t = weight[x];
+    weight[x] = weight[y];
+    weight[y] = t;
+}
+
+/**
+ * 向下调整
+ */
+void siftdown(int i)
+{
+    int t, flag = 0;
+    while (i * 2 <= num && flag == 0)
+    {
+        if (weight[i]->count < weight[i * 2]->count)
+            t = i * 2;
+        else
+            t = i;
+        if (i * 2 + 1 <= num)
+            if (weight[t]->count < weight[i * 2 + 1]->count)
+                t = i * 2 + 1;
+        if (t != i)
+        {
+            swap(t, i);
+            i = t;
+        }
+        else
+            flag = 1;
+    }
+}
+
+/**
+ * 建立堆
+ */
+void creat()
+{
+    for (int i = num / 2; i >= 1; i--)
+        siftdown(i);
+}
+
+/**
+ * 堆排序
+ */
+void heapsort()
+{
+    while (num > 1)
+    {
+        swap(1, num);
+        num--;
+        siftdown(1);
+    }
+}
+
+/**
+ * 构造权重低的先出的优先队列（最小堆）
+ */
+void priority_queue()
+{
+    creat();
+    heapsort();
+    cout << "\n最小堆:" << endl;
+    for (int i = 1; i <= n; i++)
+    {
+        cout << weight[i]->ch << " 权重：" << weight[i]->count << endl;
+    }
+}
+
+/**
+ * 统计从文件当中获取的字符串中每个字符出现的次数
+ */
+void get_str_weight2()
+{
+    int i = 0;
+    long count[126] = {0};
+    while (str[i] != '\0')
+    {
+
+        count[str[i] - 32]++;
+        sumStrLen++;
+        i++;
+    }
+
+    sumStrLen *= 8;
+    int j = 1;
+    cout << "出现次数:" << endl;
+    for (int i = 1; i < 126; i++)
+    {
+        if (count[i] > 0)
+        {
+            weight[j]->ch = i + 32;
+            weight[j]->count = count[i];
+            cout << weight[j]->ch << " :  " << weight[j]->count << endl;
+            j++;
+            num++;
+        }
+    }
+
+    n = num;
+}
+
+/**
+ * 获取文件中的所有字符
+ */
+void get_file()
+{
+
+    // 以读模式打开文件
+    ifstream fin("Haffman.souce");
+    fin >> str;
+}
+
+/**
+ * 执行任务
+ */
+void task()
+{
+    get_file();
+    get_str_weight2();
+    priority_queue();
+    HaffmanTree();
+    getCode();
 }
 
 int main()
 {
-    char a[100]; // 存储要编码的所有字符
-    char b[400]; // 存储要翻译的二进制编码
-    char c[100]; // 存储翻译出来的结果
-    HuffmanTree HT = NULL;
-    char **HC;
-    while (1)
+    // 初始化
+    for (int i = 0; i < 126; i++)
     {
-        char s1[] = {"结点"}, s2[] = {"字符"}, s3[] = {"权值"}, s4[] = {"双亲"}, s5[] = {"左孩子"}, s6[] = {"右孩子"};
-        int flag = 1, choose, num, cc = 0;
-
-        printf("1.建立哈夫曼树2.编码3.输入文件4.译码5.输出文件6.退出\n");
-        char temp;
-        cout << "选择操作:";
-        cin >> choose;
-        switch (choose)
-        {
-        case 1:
-            cout << "输入字符个数：";
-            cin >> num;
-            cout << "依次输入" << num << "个字符:";
-            for (int i = 1; i <= num; i++)
-                cin >> a[i];
-            cout << "依次输入" << num << "个字符的权值:";
-
-            CreatHuffmanTree(HT, num);
-
-            FILE *fp;
-            if ((fp = fopen("hfmtree.txt", "w")) == NULL)
-                cout << "error" << endl;
-            fwrite(&s1, sizeof(s1), 1, fp);
-            fwrite(&s2, sizeof(s2), 1, fp);
-            fwrite(&s3, sizeof(s3), 1, fp);
-            fwrite(&s4, sizeof(s4), 1, fp);
-            fwrite(&s5, sizeof(s5), 1, fp);
-            fwrite(&s6, sizeof(s6), 1, fp);
-            fputc(10, fp); // 10=/n
-            for (int i = 1; i <= 2 * num - 1; i++)
-            {
-                fprintf(fp, "%-3d  ", i);
-                fwrite(&a[i], 1, 1, fp);
-            }
-            fclose(fp);
-            break;
-        case 2:
-            CreatHuffmanCode(HT, HC, num);
-            cout << "结点i\t"
-                 << "字符\t"
-                 << "权值\t"
-                 << "编码\t" << endl;
-            for (int i = 1; i <= num; i++)
-                cout << i << "\t" << a[i] << "\t" << HT[i].weight << "\t" << HC[i] << endl;
-            break;
-        case 3:
-            Coding(HT, HC, num, a);
-            cout << "二进制编码已存入codefile.txt" << endl;
-            break;
-        case 4:
-            cout << "从codefile.txt文件中读取进行译码:" << endl;
-            if ((fp = fopen("codefile.txt", "rb")) == NULL)
-                cout << "error" << endl;
-            while (1)
-            {
-                int temp = fgetc(fp); // 读一个字节。
-                if (temp == EOF)
-                    break;      // 到文件尾，退出循环。
-                b[cc++] = temp; // 赋值到字符数组中。
-            }
-            b[cc] = '\0';
-            printf("%s\n", b);
-            fclose(fp);
-            TransCode(HT, b, a, c, num);
-            cout << "译码结果:";
-            printf("%s\n", c);
-            cout << "翻译结果已存入textfile.txt" << endl;
-            break;
-        case 5:
-            printf_code();
-            break;
-        case 6:
-            flag = 0;
-            break;
-        default:
-            cout << "输入有误，重新输入" << endl;
-            continue;
-        }
-        if (flag == 0)
-            break;
+        weight[i] = new char_count();
     }
+
+    task();
+
     return 0;
 }
