@@ -1,20 +1,3 @@
-
-/*char char_wight[256] = {0};
-
-void count_char()
-{
-    char c;
-    int fp = open("Haffman.souce", 'r');
-    while (fp)
-    {
-        if (read(fp, &c, 1) <= 0)
-        {
-            break;
-        }
-        char_wight[c]++;
-    }
-}*/
-
 #include <fstream>
 #include <stdio.h>
 #include <iostream>
